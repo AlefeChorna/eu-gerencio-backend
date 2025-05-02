@@ -50,6 +50,6 @@ end
 gem "aws-sdk-core", "~> 3.222"
 
 # AWS Cognito
-gem "aws-sdk-cognitoidentityprovider", "~> 1.118"
+gem "aws-sdk-cognitoidentityprovider", "~> 1.120"
 
 gem "dotenv-rails", "~> 3.1", groups: [:development, :test]
