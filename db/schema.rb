@@ -44,15 +44,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_13_027450) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.integer "entity_id", null: false
+    t.string "email", null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["entity_id"], name: "index_users_on_entity_id"
+    t.index ["company_id"], name: "index_users_on_company_id"
   end
 
   add_foreign_key "companies", "companies", column: "parent_id"
   add_foreign_key "companies", "entities"
   add_foreign_key "companies", "users", column: "admin_id"
   add_foreign_key "people", "entities"
-  add_foreign_key "users", "entities"
+  add_foreign_key "users", "companies"
 end
