@@ -22,3 +22,31 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+# Creating a Company with an Entity
+Company.create!(
+  trader_name: "Acme Subsidiary",
+  entity_attributes: {
+    registration_number: "987654321",
+    registration_type: "cnpj"
+  }
+)
+
+# Creating a Person with an Entity
+person = Person.create!(
+  name: "John",
+  family_name: "Doe",
+  email: "john.doe@example.com",
+  entity_attributes: {
+    registration_number: "123456789",
+    registration_type: "cpf"
+  }
+)
+
+# Creating a User with an Entity
+user = User.create!(
+  entity_attributes: {
+    registration_number: "987654321",
+    registration_type: "cpf"
+  }
+)
