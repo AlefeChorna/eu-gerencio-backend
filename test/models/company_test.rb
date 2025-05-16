@@ -13,7 +13,6 @@ class CompanyTest < ActiveSupport::TestCase
 
   test 'should validate trader_name presence' do
     company = Company.new({
-        trader_name: '',
         entity_attributes: {
             registration_type: 'cnpj',
             registration_number: '12345678901234'
