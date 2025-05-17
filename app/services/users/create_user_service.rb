@@ -1,5 +1,6 @@
 class Users::CreateUserService < ApplicationService
   def self.call(user_params)
+    # TODO: Validate user company_id for security reasons
     user = User.new(user_params)
     
     User.transaction do
