@@ -9,4 +9,6 @@ Aws.config.update(
 )
 
 # Create AWS service clients
-AWS_COGNITO = Aws::CognitoIdentityProvider::Client.new
+AWS = {
+  cognito: Aws::CognitoIdentityProvider::Client.new
+}

@@ -24,10 +24,10 @@ Things you may want to cover:
 * ...
 
 # Creating a Company with an Entity
-Company.create!(
+company = Company.create!(
   trader_name: "Acme Subsidiary",
   entity_attributes: {
-    registration_number: "987654321",
+    registration_number: "01234567891234",
     registration_type: "cnpj"
   }
 )
@@ -50,3 +50,12 @@ user = User.create!(
     registration_type: "cpf"
   }
 )
+
+# Users Service create user
+
+UsersService.create({
+  email: "jhon.doe@example.com",
+  first_name: "John",
+  last_name: "Doe",
+  company_id: company.id
+})
