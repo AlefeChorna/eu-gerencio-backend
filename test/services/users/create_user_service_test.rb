@@ -63,7 +63,7 @@ module Users
         .once
       AWS[:cognito].expects(:admin_create_user)
         .with(
-          user_pool_id: ENV["COGNITO_USER_POOL_ID"],
+          user_pool_id: ENV['COGNITO_USER_POOL_ID'],
           username: @user_params[:email],
           user_attributes: [
             { name: "email", value: @user_params[:email] },

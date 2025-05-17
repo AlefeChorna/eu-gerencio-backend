@@ -45,7 +45,7 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
-  gem "mocha", "~> 2.7"
+  gem "mocha", "~> 2.7", require: false
 end
 
 # AWS SDK
@@ -55,3 +55,5 @@ gem "aws-sdk-core", "~> 3.222"
 gem "aws-sdk-cognitoidentityprovider", "~> 1.118"
 
 gem "dotenv-rails", "~> 3.1", groups: [ :development, :test ]
+
+gem "lefthook", "~> 1.11", require: false
