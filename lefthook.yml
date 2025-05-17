@@ -1,7 +1,8 @@
 pre-commit:
   parallel: false
+  piped: true
   jobs:
     - name: rubocop
-      run: bundle exec rubocop --force-exclusion --strict {staged_files}
+      run: bundle exec rubocop --force-exclusion
     - name: test
       run: rails test {staged_files} -v
