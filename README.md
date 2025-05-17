@@ -27,7 +27,7 @@ Things you may want to cover:
 company = Company.create!(
   trader_name: "Acme Subsidiary",
   entity_attributes: {
-    registration_number: "01234567891234",
+    registration_number: "00000000000191",
     registration_type: "cnpj"
   }
 )
