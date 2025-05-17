@@ -2,12 +2,12 @@ class Users::CreateUserService < ApplicationService
   def self.call(user_params)
     # TODO: Validate user company_id for security reasons
     user = User.new(user_params)
-    
+
     User.transaction do
       if not user.save
         return user.errors
       end
-      
+
       create_cognito_user(user)
       user
     rescue StandardError => e
@@ -20,7 +20,7 @@ class Users::CreateUserService < ApplicationService
 
   def self.user_exists_in_cognito?(email)
     AWS[:cognito].admin_get_user(
-      user_pool_id: ENV['COGNITO_USER_POOL_ID'],
+      user_pool_id: ENV["COGNITO_USER_POOL_ID"],
       username: email
     )
     true
@@ -35,19 +35,19 @@ class Users::CreateUserService < ApplicationService
     end
 
     AWS[:cognito].admin_create_user(
-      user_pool_id: ENV['COGNITO_USER_POOL_ID'],
+      user_pool_id: ENV["COGNITO_USER_POOL_ID"],
       username: user.email,
       user_attributes: [
         {
-          name: 'email',
+          name: "email",
           value: user.email
         },
         {
-          name: 'given_name',
+          name: "given_name",
           value: user.first_name
         },
         {
-          name: 'family_name',
+          name: "family_name",
           value: user.last_name
         }
       ]

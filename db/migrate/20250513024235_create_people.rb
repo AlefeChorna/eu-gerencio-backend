@@ -9,6 +9,6 @@ class CreatePeople < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :people, [:name, :family_name, :email], unique: true
+    add_index :people, [ :name, :family_name, :email ], unique: true
   end
 end

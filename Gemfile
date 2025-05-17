@@ -54,4 +54,4 @@ gem "aws-sdk-core", "~> 3.222"
 # AWS Cognito
 gem "aws-sdk-cognitoidentityprovider", "~> 1.118"
 
-gem "dotenv-rails", "~> 3.1", groups: [:development, :test]
+gem "dotenv-rails", "~> 3.1", groups: [ :development, :test ]

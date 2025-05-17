@@ -29,13 +29,13 @@ class ApplicationService
 
     Rails.logger.error("Service error: #{exception.message}")
     Rails.logger.error(exception.backtrace.join("\n"))
-    
-    ActiveSupport::Notifications.instrument('service.failure', 
+
+    ActiveSupport::Notifications.instrument("service.failure",
       service: self.class.name,
       error: exception,
       options: options
     )
-    
+
     Response.new(false, nil, exception)
   end
 end

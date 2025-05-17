@@ -6,6 +6,6 @@ class CreateEntities < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :entities, [:registration_number, :registration_type], unique: true
+    add_index :entities, [ :registration_number, :registration_type ], unique: true
   end
 end
