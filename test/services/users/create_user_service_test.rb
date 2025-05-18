@@ -34,11 +34,12 @@ module Users
         .once
       AWS[:cognito].expects(:admin_create_user).never
 
-      assert_raises StandardError do
+      result = assert_raises StandardError do
         CreateUserService.call(@user_params)
       end
 
       assert_nil User.find_by(email: @user_params[:email])
+      assert_equal "Failed to create user", result.message
     end
 
     test "should not create user if user already exists in cognito" do

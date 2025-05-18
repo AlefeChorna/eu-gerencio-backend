@@ -18,8 +18,8 @@ class Users::UpdateUserService < ApplicationService
       update_cognito_user(user)
       user
     rescue StandardError => e
-      Rails.logger.error("Error updating user: #{e.class.name} - #{e.message}")
-      raise e
+      Rails.logger.error("Error updating user: #{e.backtrace}")
+      raise StandardError.new("Failed to update user")
     end
   end
 

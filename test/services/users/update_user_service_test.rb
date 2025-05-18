@@ -53,13 +53,14 @@ module Users
         .raises(StandardError.new("Cognito error"))
         .once
 
-      assert_raises StandardError do
+      result = assert_raises StandardError do
         UpdateUserService.call(@user.id, { first_name: "New Name" })
       end
 
       user = User.find(@user.id)
       assert_equal "Test", user.first_name
       assert_equal "User", user.last_name
+      assert_equal "Failed to update user", result.message
     end
 
     test "should update user when valid params" do

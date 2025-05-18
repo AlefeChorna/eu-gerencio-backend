@@ -7,8 +7,8 @@ class Users::DeleteUserService < ApplicationService
       user.destroy
       nil
     rescue StandardError => e
-      Rails.logger.error("Error deleting user: #{e.class.name} - #{e.message}")
-      raise e
+      Rails.logger.error("Error deleting user: #{e.backtrace}")
+      raise StandardError.new("Failed to delete user")
     end
   end
 

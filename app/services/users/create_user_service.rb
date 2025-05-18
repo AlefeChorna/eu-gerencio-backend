@@ -11,8 +11,8 @@ class Users::CreateUserService < ApplicationService
       create_cognito_user(user)
       user
     rescue StandardError => e
-      Rails.logger.error("Error creating user: #{e.class.name} - #{e.message}")
-      raise e
+      Rails.logger.error("Error creating user: #{e.backtrace}")
+      raise StandardError.new("Failed to create user")
     end
   end
 

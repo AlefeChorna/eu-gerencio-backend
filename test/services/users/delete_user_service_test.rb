@@ -30,11 +30,12 @@ module Users
         .raises(StandardError.new("Cognito error"))
         .once
 
-      assert_raises StandardError do
+      result = assert_raises StandardError do
         DeleteUserService.call(@user.id)
       end
 
       assert User.find_by(id: @user.id)
+      assert_equal "Failed to delete user", result.message
     end
 
     test "should raise error when user not found" do
