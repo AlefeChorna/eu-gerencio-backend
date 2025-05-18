@@ -25,7 +25,7 @@ module Users
       error = assert_raises ActiveRecord::RecordNotFound do
         ResetPasswordService.call(email: "nonexistent@example.com")
       end
-      assert_equal "User with email nonexistent@example.com not found", error.message
+      assert_equal "User not found", error.message
     end
 
     test "should raise Failed to initiate password reset error when Cognito returns ServiceError" do

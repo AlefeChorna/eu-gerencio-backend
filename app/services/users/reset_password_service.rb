@@ -1,7 +1,7 @@
 class Users::ResetPasswordService
   def self.call(email:)
     user = User.find_by(email: email)
-    raise ActiveRecord::RecordNotFound, "User with email #{email} not found" unless user
+    raise ActiveRecord::RecordNotFound, "User not found" unless user
 
     begin
       response = AWS[:cognito].forgot_password(
