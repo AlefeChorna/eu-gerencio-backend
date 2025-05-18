@@ -59,6 +59,33 @@ module Users
       assert_equal "User session expired", result.message
     end
 
+    test "should raise Invalid password error when Cognito returns InvalidPasswordException" do
+      AWS[:cognito].expects(:admin_respond_to_auth_challenge)
+        .with(
+          user_pool_id: ENV["COGNITO_USER_POOL_ID"],
+          client_id: ENV["COGNITO_CLIENT_ID"],
+          challenge_name: "NEW_PASSWORD_REQUIRED",
+          challenge_responses: {
+            "USERNAME" => @user.email,
+            "NEW_PASSWORD" => "too_short",
+            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
+          },
+          session: "valid session"
+        )
+        .raises(Aws::CognitoIdentityProvider::Errors::InvalidPasswordException.new(nil, "Password does not conform to policy: Password must have uppercase characters"))
+        .once
+
+      result = assert_raises(StandardError) do
+        SetInitialPasswordService.call(
+          session: "valid session",
+          email: @user.email,
+          new_password: "too_short"
+        )
+      end
+
+      assert_equal "Password does not conform to policy: Password must have uppercase characters", result.message
+    end
+
     test "should raise Failed to set new password when Cognito returns ServiceError" do
       AWS[:cognito].expects(:admin_respond_to_auth_challenge)
         .with(

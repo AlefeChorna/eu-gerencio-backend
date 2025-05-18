@@ -17,7 +17,7 @@ class Users::ResetPasswordService < ApplicationService
     rescue Aws::CognitoIdentityProvider::Errors::CodeMismatchException => e
       raise StandardError.new("Invalid confirmation code")
     rescue Aws::CognitoIdentityProvider::Errors::InvalidPasswordException => e
-      raise StandardError.new("Invalid password")
+      raise StandardError.new(e.message)
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
       Rails.logger.error("Cognito error: #{e.backtrace}")
       raise StandardError.new("Failed to reset password")

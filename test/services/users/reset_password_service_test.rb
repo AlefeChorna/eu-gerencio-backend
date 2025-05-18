@@ -55,7 +55,7 @@ module Users
       assert_equal "Invalid confirmation code", result.message
     end
 
-    test "should raise Invalid password error when password doesn't meet requirements" do
+    test "should raise Invalid password error when Cognito returns InvalidPasswordException" do
       AWS[:cognito].expects(:confirm_forgot_password)
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
@@ -64,7 +64,7 @@ module Users
           password: "too_short",
           secret_hash: ResetPasswordService.calculate_secret_hash(@user.email)
         )
-        .raises(Aws::CognitoIdentityProvider::Errors::InvalidPasswordException.new(nil, "Password doesn't meet requirements"))
+        .raises(Aws::CognitoIdentityProvider::Errors::InvalidPasswordException.new(nil, "Password does not conform to policy: Password must have uppercase characters"))
         .once
 
       result = assert_raises(StandardError) do
@@ -75,7 +75,7 @@ module Users
         )
       end
 
-      assert_equal "Invalid password", result.message
+      assert_equal "Password does not conform to policy: Password must have uppercase characters", result.message
     end
 
     test "should raise Failed to reset password error when Cognito returns ServiceError" do

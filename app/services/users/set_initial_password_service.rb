@@ -28,6 +28,8 @@ class Users::SetInitialPasswordService < ApplicationService
       raise StandardError.new("Set new password failed")
     rescue Aws::CognitoIdentityProvider::Errors::NotAuthorizedException => e
       raise StandardError.new(e.message)
+    rescue Aws::CognitoIdentityProvider::Errors::InvalidPasswordException => e
+      raise StandardError.new(e.message)
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
       Rails.logger.error("Cognito error: #{e.backtrace}")
       raise StandardError.new("Failed to set new password")
