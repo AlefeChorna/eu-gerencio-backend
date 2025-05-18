@@ -33,7 +33,7 @@ module Users
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
           username: @user.email,
-          secret_hash: ResendVerificationCodeService.calculate_secret_hash(@user.email)
+          secret_hash: AuthHelper.calculate_secret_hash(@user.email)
         )
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
         .once
@@ -56,7 +56,7 @@ module Users
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
           username: @user.email,
-          secret_hash: ResendVerificationCodeService.calculate_secret_hash(@user.email)
+          secret_hash: AuthHelper.calculate_secret_hash(@user.email)
         )
         .returns(mock_response)
         .once

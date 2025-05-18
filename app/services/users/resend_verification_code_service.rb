@@ -1,6 +1,3 @@
-require "base64"
-require "openssl"
-
 class Users::ResendVerificationCodeService < ApplicationService
   def self.call(email:)
     user = User.find_by(email: email)
@@ -10,7 +7,7 @@ class Users::ResendVerificationCodeService < ApplicationService
       response = AWS[:cognito].resend_confirmation_code(
         client_id: ENV["COGNITO_CLIENT_ID"],
         username: email,
-        secret_hash: calculate_secret_hash(email)
+        secret_hash: AuthHelper.calculate_secret_hash(email)
       )
 
       {
@@ -21,13 +18,5 @@ class Users::ResendVerificationCodeService < ApplicationService
       Rails.logger.error("Cognito error: #{e.backtrace}")
       raise StandardError.new("Failed to resend verification code")
     end
-  end
-
-  private
-
-  def self.calculate_secret_hash(username)
-    digest = OpenSSL::Digest.new("sha256")
-    hmac = OpenSSL::HMAC.digest(digest, ENV["COGNITO_CLIENT_SECRET"], "#{username}#{ENV["COGNITO_CLIENT_ID"]}")
-    Base64.strict_encode64(hmac)
   end
 end

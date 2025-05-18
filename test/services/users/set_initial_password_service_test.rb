@@ -41,7 +41,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           },
           session: "invalid session"
         )
@@ -68,7 +68,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "too_short",
-            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           },
           session: "valid session"
         )
@@ -95,7 +95,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           },
           session: "invalid session"
         )
@@ -126,7 +126,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           },
           session: "valid session"
         )
@@ -161,7 +161,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           },
           session: "valid session"
         )

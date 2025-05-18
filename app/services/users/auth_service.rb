@@ -1,6 +1,3 @@
-require "base64"
-require "openssl"
-
 class Users::AuthService < ApplicationService
   def self.call(email:, password:)
     user = User.find_by(email: email)
@@ -10,7 +7,7 @@ class Users::AuthService < ApplicationService
       auth_params = {
         "USERNAME" => email,
         "PASSWORD" => password,
-        "SECRET_HASH" => calculate_secret_hash(email)
+        "SECRET_HASH" => AuthHelper.calculate_secret_hash(email)
       }
 
       response = AWS[:cognito].admin_initiate_auth(
@@ -45,11 +42,5 @@ class Users::AuthService < ApplicationService
       Rails.logger.error("Cognito error: #{e.backtrace}")
       raise StandardError.new("Failed to authenticate")
     end
-  end
-
-  def self.calculate_secret_hash(username)
-    digest = OpenSSL::Digest.new("sha256")
-    hmac = OpenSSL::HMAC.digest(digest, ENV["COGNITO_CLIENT_SECRET"], "#{username}#{ENV["COGNITO_CLIENT_ID"]}")
-    Base64.strict_encode64(hmac)
   end
 end

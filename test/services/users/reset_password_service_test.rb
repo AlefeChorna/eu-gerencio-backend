@@ -39,7 +39,7 @@ module Users
           username: @user.email,
           confirmation_code: "invalid_code",
           password: "new_password",
-          secret_hash: ResetPasswordService.calculate_secret_hash(@user.email)
+          secret_hash: AuthHelper.calculate_secret_hash(@user.email)
         )
         .raises(Aws::CognitoIdentityProvider::Errors::CodeMismatchException.new(nil, "Invalid confirmation code"))
         .once
@@ -62,7 +62,7 @@ module Users
           username: @user.email,
           confirmation_code: "123456",
           password: "too_short",
-          secret_hash: ResetPasswordService.calculate_secret_hash(@user.email)
+          secret_hash: AuthHelper.calculate_secret_hash(@user.email)
         )
         .raises(Aws::CognitoIdentityProvider::Errors::InvalidPasswordException.new(nil, "Password does not conform to policy: Password must have uppercase characters"))
         .once
@@ -85,7 +85,7 @@ module Users
           username: @user.email,
           confirmation_code: "123456",
           password: "new_password",
-          secret_hash: ResetPasswordService.calculate_secret_hash(@user.email)
+          secret_hash: AuthHelper.calculate_secret_hash(@user.email)
         )
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
         .once
@@ -108,7 +108,7 @@ module Users
           username: @user.email,
           confirmation_code: "123456",
           password: "new_password",
-          secret_hash: ResetPasswordService.calculate_secret_hash(@user.email)
+          secret_hash: AuthHelper.calculate_secret_hash(@user.email)
         )
         .returns(mock("CognitoResponse"))
         .once

@@ -42,7 +42,7 @@ module Users
           auth_parameters: {
             "USERNAME" => @user.email,
             "PASSWORD" => "wrong_password",
-            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           }
         )
         .raises(Aws::CognitoIdentityProvider::Errors::NotAuthorizedException.new(nil, "Invalid credentials"))
@@ -64,7 +64,7 @@ module Users
           auth_parameters: {
             "USERNAME" => @user.email,
             "PASSWORD" => "wrong_password",
-            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           }
         )
         .raises(Aws::CognitoIdentityProvider::Errors::UserNotFoundException.new(nil, "User not found"))
@@ -86,7 +86,7 @@ module Users
           auth_parameters: {
             "USERNAME" => @user.email,
             "PASSWORD" => "wrong_password",
-            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           }
         )
         .raises(Aws::CognitoIdentityProvider::Errors::PasswordResetRequiredException.new(nil, "Password reset required"))
@@ -108,7 +108,7 @@ module Users
           auth_parameters: {
             "USERNAME" => @user.email,
             "PASSWORD" => "valid_password",
-            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           }
         )
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
@@ -134,7 +134,7 @@ module Users
           auth_parameters: {
             "USERNAME" => @user.email,
             "PASSWORD" => "valid_password",
-            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           }
         )
         .returns(mock_response)
@@ -160,7 +160,7 @@ module Users
           auth_parameters: {
             "USERNAME" => @user.email,
             "PASSWORD" => "valid_password",
-            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           }
         )
         .returns(mock_response)
@@ -189,7 +189,7 @@ module Users
           auth_parameters: {
             "USERNAME" => @user.email,
             "PASSWORD" => "valid_password",
-            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => AuthHelper.calculate_secret_hash(@user.email)
           }
         )
         .returns(mock_response)
