@@ -1,4 +1,4 @@
-class Users::SetNewPasswordService < ApplicationService
+class Users::SetInitialPasswordService < ApplicationService
   def self.call(session:, email:, new_password:)
     user = User.find_by(email: email)
     raise ActiveRecord::RecordNotFound.new("User not found") unless user

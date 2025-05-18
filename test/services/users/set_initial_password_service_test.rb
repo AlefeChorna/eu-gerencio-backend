@@ -1,7 +1,7 @@
 require "test_helper"
 
 module Users
-  class SetNewPasswordServiceTest < ActiveSupport::TestCase
+  class SetInitialPasswordServiceTest < ActiveSupport::TestCase
     setup do
       @company = Company.create!(
         trader_name: "Test Company",
@@ -23,7 +23,7 @@ module Users
 
     test "should raise a user not found error when does not exist in the database" do
       error = assert_raises ActiveRecord::RecordNotFound do
-        SetNewPasswordService.call(
+        SetInitialPasswordService.call(
           session: "test-session",
           email: "nonexistent@example.com",
           new_password: "new_password123"
@@ -41,7 +41,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetNewPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
           },
           session: "invalid session"
         )
@@ -49,7 +49,7 @@ module Users
         .once
 
       result = assert_raises(StandardError) do
-        SetNewPasswordService.call(
+        SetInitialPasswordService.call(
           session: "invalid session",
           email: @user.email,
           new_password: "new_password"
@@ -68,7 +68,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetNewPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
           },
           session: "invalid session"
         )
@@ -76,7 +76,7 @@ module Users
         .once
 
       result = assert_raises(StandardError) do
-        SetNewPasswordService.call(
+        SetInitialPasswordService.call(
           session: "invalid session",
           email: @user.email,
           new_password: "new_password"
@@ -99,7 +99,7 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetNewPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
           },
           session: "valid session"
         )
@@ -107,7 +107,7 @@ module Users
         .once
 
       result = assert_raises(StandardError) do
-        SetNewPasswordService.call(
+        SetInitialPasswordService.call(
           session: "valid session",
           email: @user.email,
           new_password: "new_password"
@@ -134,14 +134,14 @@ module Users
           challenge_responses: {
             "USERNAME" => @user.email,
             "NEW_PASSWORD" => "new_password",
-            "SECRET_HASH" => SetNewPasswordService.calculate_secret_hash(@user.email)
+            "SECRET_HASH" => SetInitialPasswordService.calculate_secret_hash(@user.email)
           },
           session: "valid session"
         )
         .returns(mock_response)
         .once
 
-      result = SetNewPasswordService.call(
+      result = SetInitialPasswordService.call(
         session: "valid session",
         email: @user.email,
         new_password: "new_password"
