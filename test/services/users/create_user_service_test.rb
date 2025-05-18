@@ -67,6 +67,7 @@ module Users
           username: @user_params[:email],
           user_attributes: [
             { name: "email", value: @user_params[:email] },
+            { name: "email_verified", value: "true" },
             { name: "given_name", value: @user_params[:first_name] },
             { name: "family_name", value: @user_params[:last_name] }
           ]

@@ -43,6 +43,10 @@ class Users::CreateUserService < ApplicationService
           value: user.email
         },
         {
+          name: "email_verified",
+          value: "true"
+        },
+        {
           name: "given_name",
           value: user.first_name
         },
