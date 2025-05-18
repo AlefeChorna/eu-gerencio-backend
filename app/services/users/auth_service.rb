@@ -39,6 +39,8 @@ class Users::AuthService < ApplicationService
       raise StandardError.new("Invalid credentials")
     rescue Aws::CognitoIdentityProvider::Errors::UserNotFoundException
       raise ActiveRecord::RecordNotFound.new("SCIM: User not found")
+    rescue Aws::CognitoIdentityProvider::Errors::PasswordResetRequiredException
+      raise StandardError.new("Password reset required")
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
       Rails.logger.error("Cognito error: #{e.backtrace}")
       raise StandardError.new("Failed to authenticate")

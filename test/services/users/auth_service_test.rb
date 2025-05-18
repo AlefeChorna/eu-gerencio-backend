@@ -77,6 +77,28 @@ module Users
       assert_equal "SCIM: User not found", result.message
     end
 
+    test "should raise Password reset required error when Cognito returns PasswordResetRequiredException" do
+      AWS[:cognito].expects(:admin_initiate_auth)
+        .with(
+          user_pool_id: ENV["COGNITO_USER_POOL_ID"],
+          client_id: ENV["COGNITO_CLIENT_ID"],
+          auth_flow: "ADMIN_NO_SRP_AUTH",
+          auth_parameters: {
+            "USERNAME" => @user.email,
+            "PASSWORD" => "wrong_password",
+            "SECRET_HASH" => Users::AuthService.calculate_secret_hash(@user.email)
+          }
+        )
+        .raises(Aws::CognitoIdentityProvider::Errors::PasswordResetRequiredException.new(nil, "Password reset required"))
+        .once
+
+      result = assert_raises(StandardError) do
+        AuthService.call(email: @user.email, password: "wrong_password")
+      end
+
+      assert_equal "Password reset required", result.message
+    end
+
     test "should raise Failed to authenticate when Cognito returns ServiceError" do
       AWS[:cognito].expects(:admin_initiate_auth)
         .with(
