@@ -1,7 +1,7 @@
 require "test_helper"
 
 module Users
-  class ResetPasswordServiceTest < ActiveSupport::TestCase
+  class InitiatePasswordResetServiceTest < ActiveSupport::TestCase
     setup do
       @company = Company.create!(
         trader_name: "Test Company",
@@ -23,7 +23,7 @@ module Users
 
     test "should raise user not found error when user does not exist in the database" do
       error = assert_raises ActiveRecord::RecordNotFound do
-        ResetPasswordService.call(email: "nonexistent@example.com")
+        InitiatePasswordResetService.call(email: "nonexistent@example.com")
       end
       assert_equal "User not found", error.message
     end
@@ -33,13 +33,13 @@ module Users
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
           username: @user.email,
-          secret_hash: ResetPasswordService.calculate_secret_hash(@user.email)
+          secret_hash: InitiatePasswordResetService.calculate_secret_hash(@user.email)
         )
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
         .once
 
       result = assert_raises(StandardError) do
-        ResetPasswordService.call(email: @user.email)
+        InitiatePasswordResetService.call(email: @user.email)
       end
 
       assert_equal "Failed to initiate password reset", result.message
@@ -56,12 +56,12 @@ module Users
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
           username: @user.email,
-          secret_hash: ResetPasswordService.calculate_secret_hash(@user.email)
+          secret_hash: InitiatePasswordResetService.calculate_secret_hash(@user.email)
         )
         .returns(mock_response)
         .once
 
-      result = ResetPasswordService.call(email: @user.email)
+      result = InitiatePasswordResetService.call(email: @user.email)
       assert_equal "EMAIL", result[:delivery_medium]
       assert_equal "te**@**.com", result[:delivery_destination]
     end

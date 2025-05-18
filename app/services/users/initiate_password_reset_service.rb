@@ -1,4 +1,4 @@
-class Users::ResetPasswordService
+class Users::InitiatePasswordResetService
   def self.call(email:)
     user = User.find_by(email: email)
     raise ActiveRecord::RecordNotFound, "User not found" unless user
