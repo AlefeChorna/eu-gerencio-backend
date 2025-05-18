@@ -1,0 +1,5 @@
+user_one:
+  email: "jhon.doe@example.com"
+  first_name: "John"
+  last_name: "Doe"
+  company: company_one

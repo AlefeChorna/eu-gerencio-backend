@@ -3,19 +3,12 @@ require "test_helper"
 module Users
   class CreateUserServiceTest < ActiveSupport::TestCase
     setup do
-      @company = Company.create!(
-        trader_name: "Test Company",
-        entity_attributes: {
-          registration_number: "12345678901234",
-          registration_type: "cnpj"
-        }
-      )
-
+      company = companies(:company_one)
       @user_params = {
         email: "test@example.com",
         first_name: "Test",
         last_name: "User",
-        company_id: @company.id
+        company_id: company.id
       }
 
       AWS[:cognito] = mock("Aws::CognitoIdentityProvider::Client")

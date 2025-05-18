@@ -3,20 +3,7 @@ require "test_helper"
 module Users
   class UpdateUserServiceTest < ActiveSupport::TestCase
     setup do
-      @company = Company.create!(
-        trader_name: "Test Company",
-        entity_attributes: {
-          registration_number: "12345678901234",
-          registration_type: "cnpj"
-        }
-      )
-
-      @user = User.create!(
-        email: "test@example.com",
-        first_name: "Test",
-        last_name: "User",
-        company_id: @company.id
-      )
+      @user = users(:user_one)
 
       AWS[:cognito] = mock("Aws::CognitoIdentityProvider::Client")
     end
@@ -47,7 +34,7 @@ module Users
           username: @user.email,
           user_attributes: [
             { name: "given_name", value: "New Name" },
-            { name: "family_name", value: "User" }
+            { name: "family_name", value: "Doe" }
           ]
         )
         .raises(StandardError.new("Cognito error"))
@@ -58,8 +45,8 @@ module Users
       end
 
       user = User.find(@user.id)
-      assert_equal "Test", user.first_name
-      assert_equal "User", user.last_name
+      assert_equal "John", user.first_name
+      assert_equal "Doe", user.last_name
       assert_equal "Failed to update user", result.message
     end
 
