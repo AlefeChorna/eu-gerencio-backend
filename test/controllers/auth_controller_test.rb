@@ -15,7 +15,14 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :bad_request
     json_response = JSON.parse(response.body)
-    assert_equal "Invalid credentials", json_response["error"]
+    assert_equal(
+      {
+        "status" => 400,
+        "code" => "AuthError",
+        "message" => "Invalid credentials"
+      },
+      json_response
+    )
   end
 
   test "[POST /auth/login] should return auth tokens with valid credentials" do

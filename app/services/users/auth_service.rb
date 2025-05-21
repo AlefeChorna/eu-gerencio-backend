@@ -1,7 +1,10 @@
 class Users::AuthService < ApplicationService
   def self.call(email:, password:)
     user = User.find_by(email: email)
-    raise ActiveRecord::RecordNotFound.new("User not found") unless user
+    if not user
+      Rails.logger.error("User #{email} not found")
+      raise AuthError.invalid_credentials
+    end
 
     begin
       auth_params = {
@@ -31,16 +34,19 @@ class Users::AuthService < ApplicationService
           refresh_token: response.authentication_result.refresh_token
         }
       end
-      raise StandardError.new("Authentication failed")
+
+      Rails.logger.error("Authentication failed #{response}")
+      raise AuthError.login_failed
     rescue Aws::CognitoIdentityProvider::Errors::NotAuthorizedException
-      raise StandardError.new("Invalid credentials")
+      raise AuthError.invalid_credentials
     rescue Aws::CognitoIdentityProvider::Errors::UserNotFoundException
-      raise ActiveRecord::RecordNotFound.new("SCIM: User not found")
+      Rails.logger.error("Cognito: User #{email} not found")
+      raise AuthError.invalid_credentials
     rescue Aws::CognitoIdentityProvider::Errors::PasswordResetRequiredException
-      raise StandardError.new("Password reset required")
+      raise AuthError.password_reset_required
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
-      Rails.logger.error("Cognito error: #{e.backtrace}")
-      raise StandardError.new("Failed to authenticate")
+      Rails.logger.error("Unmapped Cognito error: #{e.backtrace}")
+      raise AuthError.login_failed
     end
   end
 end

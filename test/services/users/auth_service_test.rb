@@ -8,20 +8,21 @@ module Users
       AWS[:cognito] = mock("Aws::CognitoIdentityProvider::Client")
     end
 
-    test "should raise User not found error when user does not exist in the database" do
+    test "should raise AuthError (Invalid credentials) when user does not exist in the database" do
       email = "nonexistent@example.com"
       password = "password123"
 
       assert_nil User.find_by(email: email)
+      Rails.logger.expects(:error).with("User #{email} not found")
 
-      result = assert_raises(ActiveRecord::RecordNotFound) do
+      result = assert_raises(AuthError) do
         AuthService.call(email: email, password: password)
       end
 
-      assert_equal "User not found", result.message
+      assert_equal "Invalid credentials", result.message
     end
 
-    test "should raise Invalid credentials error when Cognito returns NotAuthorizedException" do
+    test "should raise AuthError (Invalid credentials) when Cognito returns NotAuthorizedException" do
       AWS[:cognito].expects(:admin_initiate_auth)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],
@@ -36,14 +37,14 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::NotAuthorizedException.new(nil, "Invalid credentials"))
         .once
 
-      result = assert_raises(StandardError) do
+      result = assert_raises(AuthError) do
         AuthService.call(email: @user.email, password: "wrong_password")
       end
 
       assert_equal "Invalid credentials", result.message
     end
 
-    test "should raise User not found error when Cognito returns UserNotFoundException" do
+    test "should raise AuthError (Invalid credentials) when Cognito returns UserNotFoundException" do
       AWS[:cognito].expects(:admin_initiate_auth)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],
@@ -58,14 +59,16 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::UserNotFoundException.new(nil, "User not found"))
         .once
 
-      result = assert_raises(ActiveRecord::RecordNotFound) do
+      Rails.logger.expects(:error).with("Cognito: User #{@user.email} not found")
+
+      result = assert_raises(AuthError) do
         AuthService.call(email: @user.email, password: "wrong_password")
       end
 
-      assert_equal "SCIM: User not found", result.message
+      assert_equal "Invalid credentials", result.message
     end
 
-    test "should raise Password reset required error when Cognito returns PasswordResetRequiredException" do
+    test "should raise AuthError (Password reset required) when Cognito returns PasswordResetRequiredException" do
       AWS[:cognito].expects(:admin_initiate_auth)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],
@@ -80,14 +83,14 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::PasswordResetRequiredException.new(nil, "Password reset required"))
         .once
 
-      result = assert_raises(StandardError) do
+      result = assert_raises(AuthError) do
         AuthService.call(email: @user.email, password: "wrong_password")
       end
 
       assert_equal "Password reset required", result.message
     end
 
-    test "should raise Failed to authenticate when Cognito returns ServiceError" do
+    test "should raise AuthError (Failed to authenticate) when Cognito returns ServiceError" do
       AWS[:cognito].expects(:admin_initiate_auth)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],
@@ -102,14 +105,16 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
         .once
 
-      result = assert_raises(StandardError) do
+      Rails.logger.expects(:error).once
+
+      result = assert_raises(AuthError) do
         AuthService.call(email: @user.email, password: "valid_password")
       end
 
       assert_equal "Failed to authenticate", result.message
     end
 
-    test "should raise Authentication failed when Cognito returns data but no authentication result" do
+    test "should raise AuthError (Authentication failed) when Cognito returns data but no authentication result" do
       mock_response = mock("CognitoResponse")
       mock_response.stubs(:challenge_name).returns(nil)
       mock_response.stubs(:authentication_result).returns(nil)
@@ -128,11 +133,13 @@ module Users
         .returns(mock_response)
         .once
 
-      result = assert_raises(StandardError) do
+      Rails.logger.expects(:error).with("Authentication failed #{mock_response}")
+
+      result = assert_raises(AuthError) do
         AuthService.call(email: @user.email, password: "valid_password")
       end
 
-      assert_equal "Authentication failed", result.message
+      assert_equal "Failed to authenticate", result.message
     end
 
     test "should return a challenge when Cognito returns NEW_PASSWORD_REQUIRED challenge" do

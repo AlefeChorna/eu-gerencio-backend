@@ -2,8 +2,6 @@ class AuthController < ApplicationController
   def login
     result = Users::AuthService.call(email: params[:email], password: params[:password])
     render json: result, status: :ok
-  rescue StandardError => e
-    render json: { error: e.message }, status: :bad_request
   end
 
   def set_initial_password
