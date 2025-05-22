@@ -54,7 +54,7 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
   test "[POST /auth/set-initial-password] should return error for invalid session" do
     AWS[:cognito]
       .expects(:admin_respond_to_auth_challenge)
-      .raises(Aws::CognitoIdentityProvider::Errors::NotAuthorizedException.new(nil, "Invalid session"))
+      .raises(Aws::CognitoIdentityProvider::Errors::NotAuthorizedException.new(nil, "session is expired"))
 
     post auth_set_initial_password_url, params: {
       session: "invalid_session",
@@ -64,7 +64,14 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :bad_request
     json_response = JSON.parse(response.body)
-    assert_equal "Invalid session", json_response["error"]
+    assert_equal(
+      {
+        "status" => 400,
+        "code" => "SessionExpired",
+        "message" => "Session expired"
+      },
+      json_response
+    )
   end
 
   test "[POST /auth/set-initial-password] should set initial password successfully" do

@@ -1,7 +1,10 @@
 class Users::SetInitialPasswordService < ApplicationService
   def self.call(session:, email:, new_password:)
     user = User.find_by(email: email)
-    raise ActiveRecord::RecordNotFound.new("User not found") unless user
+    if not user
+      Rails.logger.error("User #{email} not found")
+      raise AuthError.invalid_credentials
+    end
 
     begin
       auth_params = {
@@ -25,14 +28,26 @@ class Users::SetInitialPasswordService < ApplicationService
           refresh_token: response.authentication_result.refresh_token
         }
       end
-      raise StandardError.new("Set new password failed")
+
+      Rails.logger.error("Failed to set initial password #{response}")
+      raise AuthError.failed_to_set_new_password
     rescue Aws::CognitoIdentityProvider::Errors::NotAuthorizedException => e
-      raise StandardError.new(e.message)
+      not_authorized_exception(e)
     rescue Aws::CognitoIdentityProvider::Errors::InvalidPasswordException => e
-      raise StandardError.new(e.message)
+      raise AuthError.invalid_password(e.message)
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
-      Rails.logger.error("Cognito error: #{e.backtrace}")
-      raise StandardError.new("Failed to set new password")
+      Rails.logger.error("Cognito error: #{e.backtrace.join("\n")}")
+      raise AuthError.failed_to_set_new_password
     end
+  end
+
+  private
+
+  def self.not_authorized_exception(e)
+    is_session_expired = e.message.include?("session is expired")
+    if is_session_expired
+      raise AuthError.session_expired
+    end
+    raise AuthError.invalid_credentials
   end
 end

@@ -11,8 +11,6 @@ class AuthController < ApplicationController
       new_password: params[:new_password]
     )
     render json: result, status: :ok
-  rescue StandardError => e
-    render json: { error: e.message }, status: :bad_request
   end
 
   def forgot_password

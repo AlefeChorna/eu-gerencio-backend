@@ -8,18 +8,18 @@ module Users
       AWS[:cognito] = mock("Aws::CognitoIdentityProvider::Client")
     end
 
-    test "should raise a user not found error when does not exist in the database" do
-      error = assert_raises ActiveRecord::RecordNotFound do
+    test "should raise AuthError (Invalid credentials) when user does not exist in the database" do
+      error = assert_raises AuthError do
         SetInitialPasswordService.call(
           session: "test-session",
           email: "nonexistent@example.com",
           new_password: "new_password123"
         )
       end
-      assert_equal "User not found", error.message
+      assert_equal "Invalid credentials", error.message
     end
 
-    test "should raise the received error when Cognito returns NotAuthorizedException" do
+    test "should raise AuthError (Session expired) when Cognito returns NotAuthorizedException" do
       AWS[:cognito].expects(:admin_respond_to_auth_challenge)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],
@@ -32,10 +32,10 @@ module Users
           },
           session: "invalid session"
         )
-        .raises(Aws::CognitoIdentityProvider::Errors::NotAuthorizedException.new(nil, "User session expired"))
+        .raises(Aws::CognitoIdentityProvider::Errors::NotAuthorizedException.new(nil, "Request failed: session is expired"))
         .once
 
-      result = assert_raises(StandardError) do
+      result = assert_raises(AuthError) do
         SetInitialPasswordService.call(
           session: "invalid session",
           email: @user.email,
@@ -43,10 +43,10 @@ module Users
         )
       end
 
-      assert_equal "User session expired", result.message
+      assert_equal "Session expired", result.message
     end
 
-    test "should raise Invalid password error when Cognito returns InvalidPasswordException" do
+    test "should raise AuthError (Invalid password format) when Cognito returns InvalidPasswordException" do
       AWS[:cognito].expects(:admin_respond_to_auth_challenge)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],
@@ -62,7 +62,7 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::InvalidPasswordException.new(nil, "Password does not conform to policy: Password must have uppercase characters"))
         .once
 
-      result = assert_raises(StandardError) do
+      result = assert_raises(AuthError) do
         SetInitialPasswordService.call(
           session: "valid session",
           email: @user.email,
@@ -73,7 +73,7 @@ module Users
       assert_equal "Password does not conform to policy: Password must have uppercase characters", result.message
     end
 
-    test "should raise Failed to set new password when Cognito returns ServiceError" do
+    test "should raise AuthError (Failed to set new password when Cognito returns ServiceError" do
       AWS[:cognito].expects(:admin_respond_to_auth_challenge)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],
@@ -89,7 +89,9 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
         .once
 
-      result = assert_raises(StandardError) do
+      Rails.logger.expects(:error).once
+
+      result = assert_raises(AuthError) do
         SetInitialPasswordService.call(
           session: "invalid session",
           email: @user.email,
@@ -100,7 +102,7 @@ module Users
       assert_equal "Failed to set new password", result.message
     end
 
-    test "should raise Set new password failed when Cognito returns data but no authentication result" do
+    test "should raise AuthError (Failed to set new password) when Cognito returns data but no authentication result" do
       mock_response = mock("CognitoResponse")
       mock_response.stubs(:challenge_name).returns(nil)
       mock_response.stubs(:authentication_result).returns(nil)
@@ -120,7 +122,9 @@ module Users
         .returns(mock_response)
         .once
 
-      result = assert_raises(StandardError) do
+      Rails.logger.expects(:error).with("Failed to set initial password #{mock_response}")
+
+      result = assert_raises(AuthError) do
         SetInitialPasswordService.call(
           session: "valid session",
           email: @user.email,
@@ -128,7 +132,7 @@ module Users
         )
       end
 
-      assert_equal "Set new password failed", result.message
+      assert_equal "Failed to set new password", result.message
     end
 
     test "should return authentication tokens when Cognito returns authentication result" do

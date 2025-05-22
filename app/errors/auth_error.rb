@@ -18,4 +18,16 @@ class AuthError < ApplicationError
   def self.password_reset_required
     new(code: "PasswordResetRequired", message: "Password reset required")
   end
+
+  def self.invalid_password(message)
+    new(code: "InvalidPassword", message: message)
+  end
+
+  def self.session_expired
+    new(code: "SessionExpired", message: "Session expired")
+  end
+
+  def self.failed_to_set_new_password
+    new(message: "Failed to set new password")
+  end
 end
