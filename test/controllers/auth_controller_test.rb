@@ -111,7 +111,14 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :bad_request
     json_response = JSON.parse(response.body)
-    assert_equal "Failed to initiate password reset", json_response["error"]
+    assert_equal(
+      {
+        "status" => 400,
+        "code" => "AuthError",
+        "message" => "Password reset failed"
+      },
+      json_response
+    )
   end
 
   test "[POST /auth/forgot-password] should initiate password reset successfully" do

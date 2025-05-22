@@ -30,4 +30,8 @@ class AuthError < ApplicationError
   def self.failed_to_set_new_password
     new(message: "Failed to set new password")
   end
+
+  def self.password_reset_failed
+    new(message: "Password reset failed")
+  end
 end

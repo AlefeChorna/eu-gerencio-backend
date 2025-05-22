@@ -1,7 +1,10 @@
 class Users::InitiatePasswordResetService
   def self.call(email:)
     user = User.find_by(email: email)
-    raise ActiveRecord::RecordNotFound, "User not found" unless user
+    if not user
+      Rails.logger.error("User #{email} not found")
+      raise AuthError.password_reset_failed
+    end
 
     begin
       response = AWS[:cognito].forgot_password(
@@ -15,8 +18,8 @@ class Users::InitiatePasswordResetService
         delivery_destination: response.code_delivery_details.destination
       }
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
-      Rails.logger.error("Cognito error: #{e.backtrace}")
-      raise StandardError.new("Failed to initiate password reset")
+      Rails.logger.error("Cognito error: (#{e.message}) #{e.backtrace.join("\n")}")
+      raise AuthError.password_reset_failed
     end
   end
 end

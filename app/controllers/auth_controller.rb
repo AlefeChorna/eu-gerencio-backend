@@ -16,8 +16,6 @@ class AuthController < ApplicationController
   def forgot_password
     result = Users::InitiatePasswordResetService.call(email: params[:email])
     render json: result, status: :ok
-  rescue StandardError => e
-    render json: { error: e.message }, status: :bad_request
   end
 
   def resend_verification_code

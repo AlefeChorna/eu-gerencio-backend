@@ -36,7 +36,7 @@ class Users::SetInitialPasswordService < ApplicationService
     rescue Aws::CognitoIdentityProvider::Errors::InvalidPasswordException => e
       raise AuthError.invalid_password(e.message)
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
-      Rails.logger.error("Cognito error: #{e.backtrace.join("\n")}")
+      Rails.logger.error("Cognito error: (#{e.message}) #{e.backtrace.join("\n")}")
       raise AuthError.failed_to_set_new_password
     end
   end

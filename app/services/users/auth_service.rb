@@ -45,7 +45,7 @@ class Users::AuthService < ApplicationService
     rescue Aws::CognitoIdentityProvider::Errors::PasswordResetRequiredException
       raise AuthError.password_reset_required
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
-      Rails.logger.error("Unmapped Cognito error: #{e.backtrace.join("\n")}")
+      Rails.logger.error("Unmapped Cognito error: (#{e.message}) #{e.backtrace.join("\n")}")
       raise AuthError.login_failed
     end
   end

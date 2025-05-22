@@ -8,14 +8,19 @@ module Users
       AWS[:cognito] = mock("Aws::CognitoIdentityProvider::Client")
     end
 
-    test "should raise user not found error when user does not exist in the database" do
-      error = assert_raises ActiveRecord::RecordNotFound do
-        InitiatePasswordResetService.call(email: "nonexistent@example.com")
+    test "should raise AuthError (Password reset failed) when user does not exist in the database" do
+      email = "nonexistent@example.com"
+
+      assert_nil User.find_by(email: email)
+      Rails.logger.expects(:error).with("User #{email} not found")
+
+      error = assert_raises AuthError do
+        InitiatePasswordResetService.call(email: email)
       end
-      assert_equal "User not found", error.message
+      assert_equal "Password reset failed", error.message
     end
 
-    test "should raise Failed to initiate password reset error when Cognito returns ServiceError" do
+    test "should raise AuthError (Password reset failed) when Cognito returns ServiceError" do
       AWS[:cognito].expects(:forgot_password)
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
@@ -25,11 +30,13 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
         .once
 
-      result = assert_raises(StandardError) do
+      Rails.logger.expects(:error).once
+
+      result = assert_raises(AuthError) do
         InitiatePasswordResetService.call(email: @user.email)
       end
 
-      assert_equal "Failed to initiate password reset", result.message
+      assert_equal "Password reset failed", result.message
     end
 
     test "should successfully initiate password reset for existing user" do

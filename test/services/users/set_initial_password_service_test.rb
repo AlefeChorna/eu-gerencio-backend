@@ -9,10 +9,15 @@ module Users
     end
 
     test "should raise AuthError (Invalid credentials) when user does not exist in the database" do
+      email = "nonexistent@example.com"
+
+      assert_nil User.find_by(email: email)
+      Rails.logger.expects(:error).with("User #{email} not found")
+
       error = assert_raises AuthError do
         SetInitialPasswordService.call(
           session: "test-session",
-          email: "nonexistent@example.com",
+          email: email,
           new_password: "new_password123"
         )
       end
