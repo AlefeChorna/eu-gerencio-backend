@@ -8,18 +8,23 @@ module Users
       AWS[:cognito] = mock("Aws::CognitoIdentityProvider::Client")
     end
 
-    test "should raise user not found error when user does not exist in the database" do
-      error = assert_raises ActiveRecord::RecordNotFound do
+    test "should raise AuthError (Password reset failed) when user does not exist in the database" do
+      email = "nonexistent@example.com"
+
+      assert_nil User.find_by(email: email)
+      Rails.logger.expects(:error).with("User #{email} not found")
+
+      error = assert_raises AuthError do
         ResetPasswordService.call(
-          email: "nonexistent@example.com",
+          email: email,
           confirmation_code: "123456",
           new_password: "new_password123"
         )
       end
-      assert_equal "User not found", error.message
+      assert_equal "Password reset failed", error.message
     end
 
-    test "should raise Invalid confirmation code error when confirmation code is invalid" do
+    test "should raise AuthError (Invalid confirmation code) when confirmation code is invalid" do
       AWS[:cognito].expects(:confirm_forgot_password)
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
@@ -31,7 +36,7 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::CodeMismatchException.new(nil, "Invalid confirmation code"))
         .once
 
-      result = assert_raises(StandardError) do
+      result = assert_raises(AuthError) do
         ResetPasswordService.call(
           email: @user.email,
           confirmation_code: "invalid_code",
@@ -42,7 +47,7 @@ module Users
       assert_equal "Invalid confirmation code", result.message
     end
 
-    test "should raise Invalid password error when Cognito returns InvalidPasswordException" do
+    test "should raise AuthError (Invalid password format) when Cognito returns InvalidPasswordException" do
       AWS[:cognito].expects(:confirm_forgot_password)
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
@@ -54,7 +59,7 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::InvalidPasswordException.new(nil, "Password does not conform to policy: Password must have uppercase characters"))
         .once
 
-      result = assert_raises(StandardError) do
+      result = assert_raises(AuthError) do
         ResetPasswordService.call(
           email: @user.email,
           confirmation_code: "123456",
@@ -65,7 +70,7 @@ module Users
       assert_equal "Password does not conform to policy: Password must have uppercase characters", result.message
     end
 
-    test "should raise Failed to reset password error when Cognito returns ServiceError" do
+    test "should raise AuthError (Password reset failed) when Cognito returns ServiceError" do
       AWS[:cognito].expects(:confirm_forgot_password)
         .with(
           client_id: ENV["COGNITO_CLIENT_ID"],
@@ -77,7 +82,9 @@ module Users
         .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Service error"))
         .once
 
-      result = assert_raises(StandardError) do
+      Rails.logger.expects(:error).once
+
+      result = assert_raises(AuthError) do
         ResetPasswordService.call(
           email: @user.email,
           confirmation_code: "123456",
@@ -85,7 +92,7 @@ module Users
         )
       end
 
-      assert_equal "Failed to reset password", result.message
+      assert_equal "Password reset failed", result.message
     end
 
     test "should successfully reset password for existing user" do

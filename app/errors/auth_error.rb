@@ -34,4 +34,8 @@ class AuthError < ApplicationError
   def self.password_reset_failed
     new(message: "Password reset failed")
   end
+
+  def self.invalid_confirmation_code
+    new(code: "InvalidConfirmationCode", message: "Invalid confirmation code")
+  end
 end

@@ -32,7 +32,5 @@ class AuthController < ApplicationController
       new_password: params[:new_password]
     )
     head :no_content
-  rescue StandardError => e
-    render json: { error: e.message }, status: :bad_request
   end
 end

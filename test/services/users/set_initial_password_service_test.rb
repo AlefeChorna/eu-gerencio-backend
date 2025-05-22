@@ -78,7 +78,7 @@ module Users
       assert_equal "Password does not conform to policy: Password must have uppercase characters", result.message
     end
 
-    test "should raise AuthError (Failed to set new password when Cognito returns ServiceError" do
+    test "should raise AuthError (Failed to set new password) when Cognito returns ServiceError" do
       AWS[:cognito].expects(:admin_respond_to_auth_challenge)
         .with(
           user_pool_id: ENV["COGNITO_USER_POOL_ID"],

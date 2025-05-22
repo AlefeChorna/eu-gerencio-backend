@@ -1,7 +1,10 @@
 class Users::ResetPasswordService < ApplicationService
   def self.call(email:, confirmation_code:, new_password:)
     user = User.find_by(email: email)
-    raise ActiveRecord::RecordNotFound, "User not found" unless user
+    if not user
+      Rails.logger.error("User #{email} not found")
+      raise AuthError.password_reset_failed
+    end
 
     begin
       AWS[:cognito].confirm_forgot_password(
@@ -12,12 +15,12 @@ class Users::ResetPasswordService < ApplicationService
         secret_hash: AuthHelper.calculate_secret_hash(email)
       )
     rescue Aws::CognitoIdentityProvider::Errors::CodeMismatchException => e
-      raise StandardError.new("Invalid confirmation code")
+      raise AuthError.invalid_confirmation_code
     rescue Aws::CognitoIdentityProvider::Errors::InvalidPasswordException => e
-      raise StandardError.new(e.message)
+      raise AuthError.invalid_password(e.message)
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
       Rails.logger.error("Cognito error: #{e.backtrace}")
-      raise StandardError.new("Failed to reset password")
+      raise AuthError.password_reset_failed
     end
   end
 end
