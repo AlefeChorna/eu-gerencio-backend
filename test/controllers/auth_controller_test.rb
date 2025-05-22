@@ -104,7 +104,8 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "[POST /auth/forgot-password] should return error if something goes wrong" do
-    AWS[:cognito].expects(:forgot_password)
+    AWS[:cognito]
+      .expects(:forgot_password)
       .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Something went wrong"))
 
     post auth_forgot_password_url, params: { email: @user.email }, as: :json
@@ -145,14 +146,21 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
 
   test "[POST /auth/resend-verification-code] should return error if something goes wrong" do
     AWS[:cognito]
-      .expects(:resend_confirmation_code)
+      .expects(:forgot_password)
       .raises(Aws::CognitoIdentityProvider::Errors::ServiceError.new(nil, "Something went wrong"))
 
     post auth_resend_verification_code_url, params: { email: @user.email }, as: :json
 
     assert_response :bad_request
     json_response = JSON.parse(response.body)
-    assert_equal "Failed to resend verification code", json_response["error"]
+    assert_equal(
+      {
+        "status" => 400,
+        "code" => "AuthError",
+        "message" => "Password reset failed"
+      },
+      json_response
+    )
   end
 
   test "[POST /auth/resend-verification-code] should resend verification code successfully" do
@@ -168,7 +176,7 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
     mock_response.stubs(:code_delivery_details).returns(mock_code_delivery)
 
     AWS[:cognito]
-      .expects(:resend_confirmation_code)
+      .expects(:forgot_password)
       .returns(mock_response)
 
     post auth_resend_verification_code_url, params: { email: @user.email }, as: :json
