@@ -47,6 +47,29 @@ module Users
       assert_equal "Invalid confirmation code", result.message
     end
 
+    test "should raise AuthError (Confirmation code expired) when confirmation code is expired" do
+      AWS[:cognito].expects(:confirm_forgot_password)
+        .with(
+          client_id: ENV["COGNITO_CLIENT_ID"],
+          username: @user.email,
+          confirmation_code: "invalid_code",
+          password: "new_password",
+          secret_hash: AuthHelper.calculate_secret_hash(@user.email)
+        )
+        .raises(Aws::CognitoIdentityProvider::Errors::ExpiredCodeException.new(nil, "Expired confirmation code"))
+        .once
+
+      result = assert_raises(AuthError) do
+        ResetPasswordService.call(
+          email: @user.email,
+          confirmation_code: "invalid_code",
+          new_password: "new_password"
+        )
+      end
+
+      assert_equal "Confirmation code expired", result.message
+    end
+
     test "should raise AuthError (Invalid password format) when Cognito returns InvalidPasswordException" do
       AWS[:cognito].expects(:confirm_forgot_password)
         .with(

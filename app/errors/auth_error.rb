@@ -38,4 +38,8 @@ class AuthError < ApplicationError
   def self.invalid_confirmation_code
     new(code: "InvalidConfirmationCode", message: "Invalid confirmation code")
   end
+
+  def self.confirmation_code_expired
+    new(code: "ConfirmationCodeExpired", message: "Confirmation code expired")
+  end
 end

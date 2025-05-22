@@ -14,12 +14,14 @@ class Users::ResetPasswordService < ApplicationService
         password: new_password,
         secret_hash: AuthHelper.calculate_secret_hash(email)
       )
-    rescue Aws::CognitoIdentityProvider::Errors::CodeMismatchException => e
+    rescue Aws::CognitoIdentityProvider::Errors::CodeMismatchException
       raise AuthError.invalid_confirmation_code
+    rescue Aws::CognitoIdentityProvider::Errors::ExpiredCodeException
+      raise AuthError.confirmation_code_expired
     rescue Aws::CognitoIdentityProvider::Errors::InvalidPasswordException => e
       raise AuthError.invalid_password(e.message)
     rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
-      Rails.logger.error("Cognito error: #{e.backtrace}")
+      Rails.logger.error("Cognito error: (#{e.message}) #{e.backtrace}")
       raise AuthError.password_reset_failed
     end
   end
