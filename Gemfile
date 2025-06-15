@@ -58,3 +58,5 @@ gem "aws-sdk-cognitoidentityprovider", "~> 1.118"
 gem "dotenv-rails", "~> 3.1", groups: [ :development, :test ]
 
 gem "lefthook", "~> 1.11", require: false
+
+gem "pagy", "~> 9.3"
