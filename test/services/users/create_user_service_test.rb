@@ -3,12 +3,10 @@ require "test_helper"
 module Users
   class CreateUserServiceTest < ActiveSupport::TestCase
     setup do
-      company = companies(:company_one)
       @user_params = {
         email: "test@example.com",
         first_name: "Test",
-        last_name: "User",
-        company_id: company.id
+        last_name: "User"
       }
 
       AWS[:cognito] = mock("Aws::CognitoIdentityProvider::Client")
@@ -74,7 +72,6 @@ module Users
       assert_equal db_user.email, result.email
       assert_equal db_user.first_name, result.first_name
       assert_equal db_user.last_name, result.last_name
-      assert_equal db_user.company_id, result.company_id
     end
   end
 end

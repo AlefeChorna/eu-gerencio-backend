@@ -12,8 +12,11 @@ class UserTest < ActiveSupport::TestCase
     @user = User.create!({
       email: "test@example.com",
       first_name: "John",
-      last_name: "Doe",
-      company_id: @company.id
+      last_name: "Doe"
+    })
+    UserCompany.create!({
+      user: @user,
+      company: @company
     })
   end
 
@@ -71,8 +74,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "should belong to a company" do
-    assert_respond_to @user, :company
-    assert_respond_to @user, :company=
-    assert_not_nil @user.company
+    assert_respond_to @user, :companies
+    assert_not_nil @user.companies
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_13_027450) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_16_012800) do
   create_table "companies", force: :cascade do |t|
     t.string "trader_name", null: false
     t.integer "entity_id", null: false
@@ -43,19 +43,29 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_13_027450) do
     t.index ["name", "family_name", "email"], name: "index_people_on_name_and_family_name_and_email", unique: true
   end
 
+  create_table "user_companies", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.integer "user_id", null: false
+    t.string "role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "user_id"], name: "index_user_companies_on_company_and_user", unique: true
+    t.index ["company_id"], name: "index_user_companies_on_company_id"
+    t.index ["user_id"], name: "index_user_companies_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "first_name", null: false
     t.string "last_name", null: false
-    t.integer "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_users_on_company_id"
   end
 
   add_foreign_key "companies", "companies", column: "parent_id"
   add_foreign_key "companies", "entities"
   add_foreign_key "companies", "users", column: "admin_id"
   add_foreign_key "people", "entities"
-  add_foreign_key "users", "companies"
+  add_foreign_key "user_companies", "companies"
+  add_foreign_key "user_companies", "users"
 end

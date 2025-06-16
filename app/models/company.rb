@@ -4,6 +4,8 @@ class Company < ApplicationRecord
   belongs_to :parent, class_name: "Company", optional: true
 
   has_many :subsidiaries, class_name: "Company", foreign_key: "parent_id", dependent: :nullify
+  has_many :user_companies, dependent: :destroy
+  has_many :users, through: :user_companies
 
   validates :trader_name, presence: true
   validate :entity_registration_type_matches
