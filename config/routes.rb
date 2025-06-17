@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   post "auth/login", to: "auth#login"
+  post "auth/refresh-token", to: "auth#refresh_token"
   post "auth/set-initial-password", to: "auth#set_initial_password"
   post "auth/forgot-password", to: "auth#forgot_password"
   post "auth/reset-password", to: "auth#reset_password"

@@ -50,4 +50,12 @@ class AuthError < ApplicationError
   def self.token_not_found
     new(code: "TokenNotFound", message: "Token not found", status: :unauthorized)
   end
+
+  def self.token_refresh_failed
+    new(code: "TokenRefreshFailed", message: "Failed to refresh token", status: :unauthorized)
+  end
+
+  def self.invalid_refresh_token
+    new(code: "InvalidRefreshToken", message: "Invalid or expired refresh token", status: :unauthorized)
+  end
 end

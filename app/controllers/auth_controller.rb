@@ -4,6 +4,16 @@ class AuthController < ApplicationController
     render json: result, status: :ok
   end
 
+  def refresh_token
+    authorization_header = request.headers["Authorization"]
+    expired_token = authorization_header.split(" ").last
+    result = Users::RefreshTokenService.call(
+      expired_token: expired_token,
+      refresh_token: params[:refresh_token]
+    )
+    render json: result, status: :ok
+  end
+
   def set_initial_password
     result = Users::SetInitialPasswordService.call(
       session: params[:session],
