@@ -1,7 +1,7 @@
 class AuthError < ApplicationError
-  def initialize(code: "AuthError", message: "")
+  def initialize(code: "AuthError", message: "", status: :bad_request)
     super(
-      status: :bad_request,
+      status: status,
       code: code,
       message: message
     )
@@ -41,5 +41,13 @@ class AuthError < ApplicationError
 
   def self.confirmation_code_expired
     new(code: "ConfirmationCodeExpired", message: "Confirmation code expired")
+  end
+
+  def self.token_expired
+    new(code: "TokenExpired", message: "Token expired", status: :unauthorized)
+  end
+
+  def self.token_not_found
+    new(code: "TokenNotFound", message: "Token not found", status: :unauthorized)
   end
 end

@@ -8,19 +8,19 @@ class Authentication
     return @app.call(env) if skip_authentication?(request.path)
     token = extract_token(request)
     unless token
-      return [ 401, { "Content-Type" => "application/json" }, [ { error: "Token not found" }.to_json ] ]
+      return [ 401, { "Content-Type" => "application/json" }, [ AuthError.token_not_found.to_json ] ]
     end
     begin
       decoded_token = JsonWebToken.verify(token)
       payload = decoded_token[0]
       user = User.find_by(email: payload["email"])
       unless user
-        return [ 404, { "Content-Type" => "application/json" }, [ { error: "User not found" }.to_json ] ]
+        return [ 404, { "Content-Type" => "application/json" }, [ NotFoundError.user.to_json ] ]
       end
       env[:current_user] = user
       @app.call(env)
     rescue JWT::VerificationError, JWT::DecodeError => e
-      [ 401, { "Content-Type" => "application/json" }, [ { error: "Invalid token: #{e.message}" }.to_json ] ]
+      [ 401, { "Content-Type" => "application/json" }, [ AuthError.token_expired.to_json ] ]
     end
   end
 

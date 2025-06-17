@@ -7,4 +7,8 @@ class NotFoundError < ApplicationError
       message: message
     )
   end
+
+  def self.user
+    new(entity: "User")
+  end
 end
