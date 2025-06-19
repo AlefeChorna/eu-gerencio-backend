@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_16_012800) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_19_171210) do
   create_table "companies", force: :cascade do |t|
     t.string "trader_name", null: false
     t.integer "entity_id", null: false
@@ -46,7 +46,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_16_012800) do
   create_table "user_companies", force: :cascade do |t|
     t.integer "company_id", null: false
     t.integer "user_id", null: false
-    t.string "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id", "user_id"], name: "index_user_companies_on_company_and_user", unique: true
@@ -60,6 +59,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_16_012800) do
     t.string "last_name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_root", default: false, null: false
   end
 
   add_foreign_key "companies", "companies", column: "parent_id"
