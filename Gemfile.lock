@@ -87,7 +87,7 @@ GEM
       logger
     aws-sigv4 (1.11.0)
       aws-eventstream (~> 1, >= 1.0.2)
-    base64 (0.2.0)
+    base64 (0.3.0)
     bcrypt_pbkdf (1.1.1)
     benchmark (0.4.0)
     bigdecimal (3.1.9)
@@ -126,7 +126,7 @@ GEM
       reline (>= 0.4.2)
     jmespath (1.6.2)
     json (2.10.2)
-    jwt (2.8.2)
+    jwt (3.1.1)
       base64
     kamal (2.5.3)
       activesupport (>= 7.0)
@@ -349,7 +349,7 @@ DEPENDENCIES
   brakeman
   debug
   dotenv-rails (~> 3.1)
-  jwt (~> 2.8.1)
+  jwt (~> 3.1.1)
   kamal
   lefthook (~> 1.11)
   mocha (~> 2.7)
