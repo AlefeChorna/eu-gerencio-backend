@@ -50,7 +50,7 @@ group :development, :test do
 end
 
 # AWS SDK
-gem "aws-sdk-core", "~> 3.222"
+gem "aws-sdk-core", "~> 3.228"
 
 # AWS Cognito
 gem "aws-sdk-cognitoidentityprovider", "~> 1.118"
